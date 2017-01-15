@@ -2,7 +2,8 @@
 
 const 
     request = require('request'),
-    config = require('config');
+    config = require('config'),
+    utilities = require('./utilities')
 
 const GiphyApiKey = (process.env.GIPHY_API_KEY) ?
   (process.env.GIPHY_API_KEY) :
@@ -11,52 +12,52 @@ const GiphyApiKey = (process.env.GIPHY_API_KEY) ?
 const parameters = [
     {
         keyword: "animals",
-        limit: 200
+        limit: 100
     },
     {
         keyword: "cute+animals",
-        limit: 200
+        limit: 100
     },
     {
         keyword: "penquins",
-        limit: 100
+        limit: 50
     },
     {
         keyword: "bunnies",
-        limit: 100
+        limit: 50
     },
     {
         keyword: "puppies",
-        limit: 100
+        limit: 50
     },
     {
         keyword: "elephants",
-        limit: 100
+        limit: 50
     },
     {
         keyword: "hamsters",
-        limit: 100
+        limit: 50
     },
     {
         keyword: "guinea+pigs",
-        limit: 100
+        limit: 50
     },
     {
         keyword: "ducks",
-        limit: 100
+        limit: 50
     },
     {
         keyword: "kitties",
-        limit: 100
+        limit: 50
     },
     {
         keyword: "baby+elephants",
-        limit: 50
+        limit: 25
     },
 ]
 
 function FetchGifFromList(cb) {
-    let selection = generateRandomeSelection(parameters)
+    let selection = utilities.generateRandomeSelection(parameters)
     fetchGif(selection.keyword, selection.limit, cb)
 }
 
@@ -68,17 +69,11 @@ function fetchGif (keyword, limit, cb) {
     }
     request(options, function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            let randomImage = generateRandomeSelection(body["data"])
+            let randomImage = utilities.generateRandomeSelection(body["data"])
             return cb(randomImage.images.original.url)
         }
         return cb("https://media.giphy.com/media/hdEhU942MSM6Y/giphy.gif")
     })
-}
-
-function generateRandomeSelection(input) {
-    let length = input.length
-    let randomSelection = Math.round(Math.random() * length - 1)
-    return input[randomSelection]
 }
 
 module.exports = FetchGifFromList

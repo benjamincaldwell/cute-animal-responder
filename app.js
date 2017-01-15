@@ -17,7 +17,8 @@ const
   express = require('express'),
   https = require('https'),  
   request = require('request'),
-  FetchGifFromList = require('./images/giphy');
+  FetchImageURL = require('./images/image')
+
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
@@ -357,7 +358,7 @@ function sendImageMessage(recipientId) {
 }
 
 function sendRandomGifMessage(receiptId) {
-  FetchGifFromList((url) => {
+  FetchImageURL((url) => {
     sendGifMessage(receiptId, url)
   })
 }
@@ -367,7 +368,8 @@ function sendRandomGifMessage(receiptId) {
  *
  */
 function sendGifMessage(recipientId, url) {
-  var messageData = {
+  console.log (url);
+  let messageData = {
     recipient: {
       id: recipientId
     },
@@ -382,7 +384,11 @@ function sendGifMessage(recipientId, url) {
     }
   };
 
-  callSendAPI(messageData);
+  callSendAPI(messageData, (err) => {
+    if (err){
+      sendRandomGifMessage(recipientId)
+    }
+  })
 }
 
 /*
@@ -729,9 +735,7 @@ function sendAccountLinking(recipientId) {
         }
       }
     }
-  };  
-
-  callSendAPI(messageData);
+  };
 }
 
 /*
@@ -739,7 +743,7 @@ function sendAccountLinking(recipientId) {
  * get the message id in a response 
  *
  */
-function callSendAPI(messageData) {
+function callSendAPI(messageData, cb) {
   request({
     uri: 'https://graph.facebook.com/v2.6/me/messages',
     qs: { access_token: PAGE_ACCESS_TOKEN },
@@ -760,7 +764,9 @@ function callSendAPI(messageData) {
       }
     } else {
       console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+      return cb(true)
     }
+    cb(false)
   });  
 }
 
